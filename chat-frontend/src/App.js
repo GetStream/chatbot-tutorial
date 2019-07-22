@@ -7,14 +7,11 @@ import PropTypes from 'prop-types';
 
 import 'stream-chat-react/dist/css/index.css';
 
-const chatClient = new StreamChat(process.env.REACT_STREAM_API_KEY);
+const chatClient = new StreamChat(process.env.REACT_APP_STREAM_API_KEY);
 
 
 // in a real app you would do some round robin on active agents..
 const assignedSupportAgent = 'support-agent-123'
-alert(process.env.REACT_APP_STREAM_API_KEY)
-
-
 
 
 const Button = ({ open, onClick }) => (

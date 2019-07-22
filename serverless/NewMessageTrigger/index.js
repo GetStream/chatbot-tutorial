@@ -13,6 +13,7 @@ function getStreamClient() {
     process.env.STREAM_API_KEY,
     process.env.STREAM_API_SECRET
   );
+  return client;
 }
 
 /**
@@ -21,13 +22,14 @@ function getStreamClient() {
  * @param  {string} messageText the message text to analyse
  * @returns {object}             returns the top intent as {intent: 'name', score: 0.9}
  */
-async function analyseIntentWithLUIS(messageText) {
+async function analyseIntentWithLUIS(context, messageText) {
   const appID = process.env.LUIS_APP_ID;
   const key = process.env.LUIS_SUBSCRIPTION_KEY;
   const region = process.env.LUIS_REGION;
   const url = `https://${region}.api.cognitive.microsoft.com/luis/v2.0/apps/${appID}?subscription-key=${key}&q=${messageText}`;
   const response = await axios.get(url);
   const data = response.data;
+  context.log("response", response);
 
   return data.topScoringIntent;
 }
@@ -57,23 +59,27 @@ module.exports = async function(context, req) {
     const channelID = cID.split(":")[1];
 
     // run intent analysis with LUIS
-    const topIntent = analyseIntentWithLUIS(messageText);
+    const topIntent = await analyseIntentWithLUIS(context, messageText);
     const intent = topIntent.intent;
     const score = topIntent.score;
     context.log(
-      `Received a message.new with text ${messageText} and found intent ${intent} with score ${score}`
+      `Received a message.new with text "${messageText}" and found intent ${intent} with score ${score}`
     );
 
     // if we understand this intend, send a reply
-    if (intent === "schedule" || true) {
-      // Get the Stream client and write a reply
-      const client = getStreamClient();
-      await client.channel(channelType, channelID).sendMessage({
-        text: "reply",
-        user: {
-          id: "mrbot",
-          name: "MR Bot"
-        }
+    const chatClient = getStreamClient();
+    const channel = chatClient.channel(channelType, channelID);
+    const botUser = {id: "mrbot",name: "MR Bot"};
+
+    if (intent === "Answer") {
+      await channel.sendMessage({
+        text: "42 is the answer",
+        user: botUser
+      });
+    } else if (intent === "RestaurantReservation.Reserve") {
+      await channel.sendMessage({
+        text: "Great idea, I'm hungry",
+        user: botUser
       });
     }
 
