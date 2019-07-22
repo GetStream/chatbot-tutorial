@@ -7,11 +7,12 @@ import PropTypes from 'prop-types';
 
 import 'stream-chat-react/dist/css/index.css';
 
-const chatClient = new StreamChat('2fp7wkq6nhhu');
+const chatClient = new StreamChat(process.env.REACT_STREAM_API_KEY);
 
 
 // in a real app you would do some round robin on active agents..
 const assignedSupportAgent = 'support-agent-123'
+alert(process.env.REACT_APP_STREAM_API_KEY)
 
 
 
@@ -57,10 +58,6 @@ class MyChannelHeader extends PureComponent {
     this.setState({members: this.props.channel.state.members})
   }
 
-  // TODO: connect the .on
-  //
-  //
-  //
   componentDidMount() {
     this.props.channel.on('user.presence.changed', this.handleUserPresenceChange)
   }
@@ -132,6 +129,7 @@ class App extends React.Component {
       open: true,
       name: "",
       email: "",
+      agents: [],
       channel: null,
     };
   }
@@ -164,22 +162,56 @@ class App extends React.Component {
     this.setState({channel: channel})
   }
 
+  async componentDidMount() {
+    console.log('querying users');
+    const agents = await chatClient.queryUsers({role: 'agent'})
+    console.log("agents", agents);
+    this.setState({agents: agents.slice(0,3)})
+  }
+
   renderGuestUserUI() {
     return   (
-        <div>
-       Hi, what's your name and email?
-       <form onSubmit={this.handleSubmit}>
-         <label>
-           Name:
-           <input type="text" value={this.state.name} onChange={this.handleNameChange} />
-         </label>
-         <label>
-           Email:
-           <input type="text" value={this.state.email} onChange={this.handleEmailChange} />
-         </label>
-         <input type="submit" value="Submit" />
-         </form>
-      </div>
+
+      <div className="str-chat str-chat-channel commerce light">
+    <div className="str-chat__container">
+        <div className="str-chat__main-panel">
+            <div className="str-chat__header-livestream">
+                <div>
+                  Hi, feel free to ask any questions or share your feedback. We're happy to help!
+                  <Avatar image="https://pbs.twimg.com/profile_images/897621870069112832/dFGq6aiE_400x400.jpg" />
+                  <Avatar image="https://i.pravatar.cc/300" />
+                  <Avatar image="https://i.pravatar.cc/200" />
+
+                  <ul>
+                  {this.state.agents.map((value, index) => {
+                    return <li key={index}>{value.name}</li>
+                  })}
+
+                </ul>
+                </div>
+            </div>
+            <div className="str-chat__list ">
+            <div>
+            Hi, what's your name and email?
+            <form onSubmit={this.handleSubmit}>
+             <label>
+               Name:
+               <input type="text" value={this.state.name} onChange={this.handleNameChange} />
+             </label><br />
+             <label>
+               Email:
+               <input type="text" value={this.state.email} onChange={this.handleEmailChange} />
+             </label><br />
+             <input type="submit" value="Submit" />
+             </form>
+            </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
     )
   }
 
@@ -213,10 +245,6 @@ class App extends React.Component {
         nodes = this.renderGuestUserUI();
       }
     }
-
-
-    console.log("nodes is", nodes);
-
 
     return (
       <div className={`wrapper ${this.state.open ? 'wrapper--open' : ''}`}>
