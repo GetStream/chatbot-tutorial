@@ -1,12 +1,11 @@
-import React, { PureComponent } from "react";
+import React from "react";
+import PropTypes from "prop-types";
 import {
   Chat,
   Channel,
   ChannelHeader,
   Thread,
-  Window
-} from "stream-chat-react";
-import {
+  Window,
   MessageList,
   TypingIndicator,
   MessageInputFlat,
@@ -16,7 +15,7 @@ import {
   Avatar
 } from "stream-chat-react";
 import { StreamChat } from "stream-chat";
-import PropTypes from "prop-types";
+
 
 import "stream-chat-react/dist/css/index.css";
 
@@ -48,7 +47,7 @@ const Button = ({ open, onClick }) => (
   </div>
 );
 
-class MyChannelHeader extends PureComponent {
+class MyChannelHeader extends React.PureComponent {
   static propTypes = {
     /** Via Context: the channel to render */
     channel: PropTypes.object.isRequired,
@@ -79,7 +78,7 @@ class MyChannelHeader extends PureComponent {
     );
   }
 
-  renderOnline() {
+  render() {
     const onlineUsers = [];
     console.log(this.props.channel.state.members);
     if (this.props.channel.state.members) {
@@ -90,45 +89,30 @@ class MyChannelHeader extends PureComponent {
       }
     }
 
-    return (
-      <ul>
-        {onlineUsers.map((value, index) => {
-          return (
-            <li key={index}>
-              {value.name} - {value.id}
-            </li>
-          );
-        })}
-      </ul>
-    );
-  }
+    if (!onlineUsers.length) {
+      return (
+        <div className="str-chat__header-livestream">
+          Sorry, nobody is online at the moment.
+          A support agent has been notified.
+        </div>
+      )
+    }
 
-  render() {
     return (
       <div className="str-chat__header-livestream">
-        {this.renderOnline()}
-
-        <div className="str-chat__header-livestream-left">
-          <p className="str-chat__header-livestream-left--title">
-            {this.props.title || this.props.channel.data.name}{" "}
-            {this.props.live && (
-              <span className="str-chat__header-livestream-left--livelabel">
-                live
-              </span>
-            )}
-          </p>
-          {this.props.channel.data.subtitle && (
-            <p className="str-chat__header-livestream-left--subtitle">
-              {this.props.channel.data.subtitle}
-            </p>
-          )}
-          <p className="str-chat__header-livestream-left--members">
-            {!this.props.live && this.props.channel.data.member_count > 0 && (
-              <>{this.props.channel.data.member_count} members, </>
-            )}
-            {this.props.watcher_count} online
-          </p>
-        </div>
+        Currently online:
+        <ul>
+          {onlineUsers.map((value, index) => {
+            return (
+              <li key={index}>
+                <div>
+                  <Avatar image={value.image} name={value.name} />
+                  {value.name}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
       </div>
     );
   }
