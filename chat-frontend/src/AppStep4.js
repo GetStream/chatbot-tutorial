@@ -45,69 +45,6 @@ const Button = ({ open, onClick }) => (
 );
 
 /**
- * A custom channel header element which shows who is currently online
- */
-class MyChannelHeader extends React.PureComponent {
-  static propTypes = {
-    channel: PropTypes.object.isRequired
-  };
-
-  handleUserPresenceChange = () => {
-    this.setState({ members: this.props.channel.state.members });
-  };
-
-  componentDidMount() {
-    this.props.channel.on(
-      "user.presence.changed",
-      this.handleUserPresenceChange
-    );
-  }
-
-  componentWillUnmount() {
-    this.props.channel.off(
-      "user.presence.changed",
-      this.handleUserPresenceChange
-    );
-  }
-
-  render() {
-    const onlineUsers = [];
-    if (this.props.channel.state.members) {
-      for (let m of Object.values(this.props.channel.state.members)) {
-        if (m.user.online) {
-          onlineUsers.push(m.user);
-        }
-      }
-    }
-
-    if (!onlineUsers.length) {
-      return (
-        <div className="str-chat__header-livestream">
-          Sorry, nobody is online at the moment. A support agent has been
-          notified.
-        </div>
-      );
-    }
-
-    return (
-      <div className="str-chat__header-livestream">
-        Currently online:
-        {onlineUsers.map((value, index) => {
-          return (
-            <div key={index}>
-              <Avatar image={value.image} name={value.name} />
-              {value.name}
-            </div>
-          );
-        })}
-      </div>
-    );
-  }
-}
-// Consume the channel context with the withChannelContext function
-MyChannelHeader = withChannelContext(MyChannelHeader);
-
-/**
  * A little interface for the user to setup their name and email before
  * The chat starts.
  */
@@ -212,22 +149,7 @@ class App extends React.Component {
   };
 
   renderChat() {
-    return (
-      <Chat client={chatClient} theme={"commerce light"}>
-        <Channel channel={this.state.channel}>
-          <Window>
-            <MyChannelHeader />
-
-            <MessageList
-              TypingIndicator={TypingIndicator}
-              Message={MessageCommerce}
-            />
-
-            <MessageInput Input={MessageInputFlat} />
-          </Window>
-        </Channel>
-      </Chat>
-    );
+    return <div>nochat just yet</div>;
   }
 
   render() {

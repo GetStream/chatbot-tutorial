@@ -130,9 +130,9 @@ class GuestUserInput extends React.Component {
 
   handleSubmit = async event => {
     event.preventDefault();
-    const userID = window.btoa(this.state.email).replace(/=/g, "");
     // in a real app you would do some round robin on active agents..
     const assignedSupportAgent = "support-agent-123";
+    const userID = window.btoa(this.state.email).replace(/=/g, "");
     this.user = await chatClient.setGuestUser({
       id: userID,
       name: this.state.name,
