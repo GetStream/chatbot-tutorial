@@ -24,6 +24,10 @@ const chatClient = new StreamChat(process.env.REACT_APP_STREAM_API_KEY);
 // in a real app you would do some round robin on active agents..
 const assignedSupportAgent = "support-agent-123";
 
+
+/**
+ * A little button component to toggle the chat interface
+ */
 const Button = ({ open, onClick }) => (
   <div
     onClick={onClick}
@@ -47,20 +51,16 @@ const Button = ({ open, onClick }) => (
   </div>
 );
 
+
+/**
+ * A custom channel header element which shows who is currently online
+ */
 class MyChannelHeader extends React.PureComponent {
   static propTypes = {
-    /** Via Context: the channel to render */
     channel: PropTypes.object.isRequired,
-    /** Set title manually */
-    title: PropTypes.string,
-    /** Via Context: the number of users watching users */
-    watcher_count: PropTypes.number,
-    /** Show a little indicator that the channel is live right now */
-    live: PropTypes.bool
   };
 
   handleUserPresenceChange = () => {
-    console.log("user presence change");
     this.setState({ members: this.props.channel.state.members });
   };
 
@@ -80,7 +80,6 @@ class MyChannelHeader extends React.PureComponent {
 
   render() {
     const onlineUsers = [];
-    console.log(this.props.channel.state.members);
     if (this.props.channel.state.members) {
       for (let m of Object.values(this.props.channel.state.members)) {
         if (m.user.online) {
@@ -101,44 +100,34 @@ class MyChannelHeader extends React.PureComponent {
     return (
       <div className="str-chat__header-livestream">
         Currently online:
-        <ul>
           {onlineUsers.map((value, index) => {
             return (
-              <li key={index}>
-                <div>
+                <div key={index}>
                   <Avatar image={value.image} name={value.name} />
                   {value.name}
                 </div>
-              </li>
             );
           })}
-        </ul>
       </div>
     );
   }
 }
-
+// Consume the channel context with the withChannelContext function
 MyChannelHeader = withChannelContext(MyChannelHeader);
 
-class App extends React.Component {
+
+/**
+ * A little interface for the user to setup their name and email before
+ * The chat starts.
+ */
+class GuestUserInput extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      open: true,
       name: "",
       email: "",
-      agents: [],
-      channel: null
     };
   }
-
-  toggleDemo = () => {
-    if (this.state.open) {
-      this.setState({ open: false });
-    } else {
-      this.setState({ open: true });
-    }
-  };
 
   handleNameChange = event => {
     this.setState({ name: event.target.value });
@@ -150,7 +139,7 @@ class App extends React.Component {
 
   handleSubmit = async event => {
     event.preventDefault();
-    const userID = window.btoa(this.state.email).replace("=", "");
+    const userID = window.btoa(this.state.email).replace(/=/g, "");
     this.user = await chatClient.setGuestUser({
       id: userID,
       name: this.state.name,
@@ -162,15 +151,10 @@ class App extends React.Component {
     });
     channel.watch({ presence: true });
 
-    this.setState({ channel: channel });
+    this.props.setChannel(channel);
   };
 
-  async componentDidMount() {
-    const agents = await chatClient.queryUsers({ role: "agent" });
-    this.setState({ agents: agents.slice(0, 3) });
-  }
-
-  renderGuestUserUI() {
+  render() {
     return (
       <div className="str-chat str-chat-channel commerce light">
         <div className="str-chat__container">
@@ -182,11 +166,6 @@ class App extends React.Component {
                 <Avatar image="https://pbs.twimg.com/profile_images/897621870069112832/dFGq6aiE_400x400.jpg" />
                 <Avatar image="https://i.pravatar.cc/300" />
                 <Avatar image="https://i.pravatar.cc/200" />
-                <ul>
-                  {this.state.agents.map((value, index) => {
-                    return <li key={index}>{value.name}</li>;
-                  })}
-                </ul>
               </div>
             </div>
             <div className="str-chat__list ">
@@ -220,6 +199,25 @@ class App extends React.Component {
       </div>
     );
   }
+}
+
+
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      open: true,
+      channel: null
+    };
+  }
+
+  setChannel = (channel) => {
+    this.setState({channel})
+  }
+
+  toggleDemo = () => {
+    this.setState({ open: !this.state.open });
+  };
 
   renderChat() {
     return (
@@ -247,7 +245,7 @@ class App extends React.Component {
       if (this.state.channel) {
         nodes = this.renderChat();
       } else {
-        nodes = this.renderGuestUserUI();
+        nodes = <GuestUserInput setChannel={this.setChannel}/>;
       }
     }
 
