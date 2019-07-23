@@ -1,23 +1,34 @@
-import React, { PureComponent } from 'react';
-import { Chat, Channel, ChannelHeader, Thread, Window } from 'stream-chat-react';
-import { MessageList, TypingIndicator, MessageInputFlat, MessageCommerce, MessageInput, withChannelContext, Avatar } from 'stream-chat-react';
-import { StreamChat } from 'stream-chat';
-import PropTypes from 'prop-types';
+import React, { PureComponent } from "react";
+import {
+  Chat,
+  Channel,
+  ChannelHeader,
+  Thread,
+  Window
+} from "stream-chat-react";
+import {
+  MessageList,
+  TypingIndicator,
+  MessageInputFlat,
+  MessageCommerce,
+  MessageInput,
+  withChannelContext,
+  Avatar
+} from "stream-chat-react";
+import { StreamChat } from "stream-chat";
+import PropTypes from "prop-types";
 
-
-import 'stream-chat-react/dist/css/index.css';
+import "stream-chat-react/dist/css/index.css";
 
 const chatClient = new StreamChat(process.env.REACT_APP_STREAM_API_KEY);
 
-
 // in a real app you would do some round robin on active agents..
-const assignedSupportAgent = 'support-agent-123'
-
+const assignedSupportAgent = "support-agent-123";
 
 const Button = ({ open, onClick }) => (
   <div
     onClick={onClick}
-    className={`button ${open ? 'button--open' : 'button--closed'}`}
+    className={`button ${open ? "button--open" : "button--closed"}`}
   >
     {open ? (
       <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg">
@@ -37,7 +48,6 @@ const Button = ({ open, onClick }) => (
   </div>
 );
 
-
 class MyChannelHeader extends PureComponent {
   static propTypes = {
     /** Via Context: the channel to render */
@@ -47,24 +57,30 @@ class MyChannelHeader extends PureComponent {
     /** Via Context: the number of users watching users */
     watcher_count: PropTypes.number,
     /** Show a little indicator that the channel is live right now */
-    live: PropTypes.bool,
+    live: PropTypes.bool
   };
 
   handleUserPresenceChange = () => {
-    console.log('user presence change');
-    this.setState({members: this.props.channel.state.members})
-  }
+    console.log("user presence change");
+    this.setState({ members: this.props.channel.state.members });
+  };
 
   componentDidMount() {
-    this.props.channel.on('user.presence.changed', this.handleUserPresenceChange)
+    this.props.channel.on(
+      "user.presence.changed",
+      this.handleUserPresenceChange
+    );
   }
 
   componentWillUnmount() {
-    this.props.channel.off('user.presence.changed', this.handleUserPresenceChange)
+    this.props.channel.off(
+      "user.presence.changed",
+      this.handleUserPresenceChange
+    );
   }
 
   renderOnline() {
-    const onlineUsers = []
+    const onlineUsers = [];
     console.log(this.props.channel.state.members);
     if (this.props.channel.state.members) {
       for (let m of Object.values(this.props.channel.state.members)) {
@@ -74,14 +90,17 @@ class MyChannelHeader extends PureComponent {
       }
     }
 
-
     return (
       <ul>
         {onlineUsers.map((value, index) => {
-          return <li key={index}>{value.name} - {value.id}</li>
+          return (
+            <li key={index}>
+              {value.name} - {value.id}
+            </li>
+          );
         })}
       </ul>
-    )
+    );
   }
 
   render() {
@@ -91,7 +110,7 @@ class MyChannelHeader extends PureComponent {
 
         <div className="str-chat__header-livestream-left">
           <p className="str-chat__header-livestream-left--title">
-            {this.props.title || this.props.channel.data.name}{' '}
+            {this.props.title || this.props.channel.data.name}{" "}
             {this.props.live && (
               <span className="str-chat__header-livestream-left--livelabel">
                 live
@@ -110,14 +129,12 @@ class MyChannelHeader extends PureComponent {
             {this.props.watcher_count} online
           </p>
         </div>
-
       </div>
     );
   }
 }
 
 MyChannelHeader = withChannelContext(MyChannelHeader);
-
 
 class App extends React.Component {
   constructor(props) {
@@ -127,7 +144,7 @@ class App extends React.Component {
       name: "",
       email: "",
       agents: [],
-      channel: null,
+      channel: null
     };
   }
 
@@ -139,101 +156,108 @@ class App extends React.Component {
     }
   };
 
-  handleNameChange = (event) => {
-    this.setState({name: event.target.value});
-  }
+  handleNameChange = event => {
+    this.setState({ name: event.target.value });
+  };
 
-  handleEmailChange = (event) =>  {
-    this.setState({email: event.target.value});
-  }
+  handleEmailChange = event => {
+    this.setState({ email: event.target.value });
+  };
 
-  handleSubmit = async (event) => {
+  handleSubmit = async event => {
     event.preventDefault();
     const userID = window.btoa(this.state.email).replace("=", "");
-    console.log('userid', userID);
-    this.user = await chatClient.setGuestUser({ id: userID, name: this.state.name, email: this.state.email });
-    console.log("got id back", chatClient.user.id);
-    const channel = chatClient.channel('commerce', userID, {members: [chatClient.user.id, assignedSupportAgent], assigned: assignedSupportAgent});
-    channel.watch({presence: true})
+    this.user = await chatClient.setGuestUser({
+      id: userID,
+      name: this.state.name,
+      email: this.state.email
+    });
+    const channel = chatClient.channel("commerce", userID, {
+      members: [chatClient.user.id, assignedSupportAgent],
+      assigned: assignedSupportAgent
+    });
+    channel.watch({ presence: true });
 
-    this.setState({channel: channel})
-  }
+    this.setState({ channel: channel });
+  };
 
   async componentDidMount() {
-    console.log('querying users');
-    const agents = await chatClient.queryUsers({role: 'agent'})
-    console.log("agents", agents);
-    this.setState({agents: agents.slice(0,3)})
+    const agents = await chatClient.queryUsers({ role: "agent" });
+    this.setState({ agents: agents.slice(0, 3) });
   }
 
   renderGuestUserUI() {
-    return   (
-
+    return (
       <div className="str-chat str-chat-channel commerce light">
-    <div className="str-chat__container">
-        <div className="str-chat__main-panel">
+        <div className="str-chat__container">
+          <div className="str-chat__main-panel">
             <div className="str-chat__header-livestream">
-                <div>
-                  Hi, feel free to ask any questions or share your feedback. We're happy to help!
-                  <Avatar image="https://pbs.twimg.com/profile_images/897621870069112832/dFGq6aiE_400x400.jpg" />
-                  <Avatar image="https://i.pravatar.cc/300" />
-                  <Avatar image="https://i.pravatar.cc/200" />
-
-                  <ul>
+              <div>
+                Hi, feel free to ask any questions or share your feedback. We're
+                happy to help!
+                <Avatar image="https://pbs.twimg.com/profile_images/897621870069112832/dFGq6aiE_400x400.jpg" />
+                <Avatar image="https://i.pravatar.cc/300" />
+                <Avatar image="https://i.pravatar.cc/200" />
+                <ul>
                   {this.state.agents.map((value, index) => {
-                    return <li key={index}>{value.name}</li>
+                    return <li key={index}>{value.name}</li>;
                   })}
-
                 </ul>
-                </div>
+              </div>
             </div>
             <div className="str-chat__list ">
-            <div>
-            Hi, what's your name and email?
-            <form onSubmit={this.handleSubmit}>
-             <label>
-               Name:
-               <input type="text" value={this.state.name} onChange={this.handleNameChange} />
-             </label><br />
-             <label>
-               Email:
-               <input type="text" value={this.state.email} onChange={this.handleEmailChange} />
-             </label><br />
-             <input type="submit" value="Submit" />
-             </form>
+              <div>
+                Hi, what's your name and email?
+                <form onSubmit={this.handleSubmit}>
+                  <label>
+                    Name:
+                    <input
+                      type="text"
+                      value={this.state.name}
+                      onChange={this.handleNameChange}
+                    />
+                  </label>
+                  <br />
+                  <label>
+                    Email:
+                    <input
+                      type="text"
+                      value={this.state.email}
+                      onChange={this.handleEmailChange}
+                    />
+                  </label>
+                  <br />
+                  <input type="submit" value="Submit" />
+                </form>
+              </div>
             </div>
-
-            </div>
-
+          </div>
         </div>
-    </div>
-</div>
-
-    )
+      </div>
+    );
   }
 
   renderChat() {
     return (
-      <Chat client={chatClient} theme={'commerce light'}>
-      <Channel channel={this.state.channel}>
-        <Window>
-          <MyChannelHeader />
+      <Chat client={chatClient} theme={"commerce light"}>
+        <Channel channel={this.state.channel}>
+          <Window>
+            <MyChannelHeader />
 
             <MessageList
               TypingIndicator={TypingIndicator}
               Message={MessageCommerce}
-             />
+            />
 
-          <MessageInput Input={MessageInputFlat} />
-        </Window>
-      </Channel>
-
-    </Chat>
-  )
+            <MessageInput Input={MessageInputFlat} />
+          </Window>
+        </Channel>
+      </Chat>
+    );
   }
 
   render() {
-    let nodes = ''
+    let nodes = "";
 
     if (this.state.open) {
       if (this.state.channel) {
@@ -244,7 +268,7 @@ class App extends React.Component {
     }
 
     return (
-      <div className={`wrapper ${this.state.open ? 'wrapper--open' : ''}`}>
+      <div className={`wrapper ${this.state.open ? "wrapper--open" : ""}`}>
         {nodes}
         <Button onClick={this.toggleDemo} open={this.state.open} />
       </div>
