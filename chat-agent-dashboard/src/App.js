@@ -5,7 +5,7 @@ import { StreamChat, DevToken } from 'stream-chat';
 
 import 'stream-chat-react/dist/css/index.css';
 
-const chatClient = new StreamChat('2fp7wkq6nhhu');
+const chatClient = new StreamChat(process.env.REACT_APP_STREAM_API_KEY);
 
 chatClient.setUser(
   {
