@@ -49,6 +49,16 @@ module.exports = async function(context, req) {
     };
     return;
   }
+  // important: validate that the request came from Stream
+  const chatClient = getStreamClient();
+  const valid = chatClient.verifyWebhook(req.rawBody, req.headers['x-signature']);
+  if (!valid) {
+    context.res = {
+      body: { error: "Invalid request, signature is invalid" }
+    };
+    return;
+  }
+
   // reply to message.new, but not to messages written by the bot
   // (you get an interesting loop if you don't exclude bot messages)
   if (req.body.type === "message.new" && req.body.message.user.id !== "mrbot") {
@@ -67,7 +77,6 @@ module.exports = async function(context, req) {
     );
 
     // if we understand this intend, send a reply
-    const chatClient = getStreamClient();
     const channel = chatClient.channel(channelType, channelID);
     const botUser = {id: "mrbot",name: "MR Bot"};
 
