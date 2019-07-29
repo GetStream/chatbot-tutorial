@@ -9320,10 +9320,10 @@ stream-browserify@^2.0.1, stream-browserify@^2.0.2:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chat-react@^0.6.15:
-  version "0.6.15"
-  resolved "https://registry.yarnpkg.com/stream-chat-react/-/stream-chat-react-0.6.15.tgz#df755c4d0ec702b2349faf6eb03e47711e27b638"
-  integrity sha512-kitL7IZAcau01fFcJmMGfSgUaR60yZe8NOP6aazLgFamk6qD2RnXv5OsyCTtPJL321VmNyK5bGJ7KmWpIro03A==
+stream-chat-react@^0.6.16:
+  version "0.6.16"
+  resolved "https://registry.yarnpkg.com/stream-chat-react/-/stream-chat-react-0.6.16.tgz#34b7c229a1336280e8ec52617f706002b70ccb78"
+  integrity sha512-vQX0zMqZRFMY9hZQ865On/JnSTpS9rUhNyB9TN4WWvZPRANFj45E9ahQg9H/os51lc0h05sp47PFK18/zdvLFw==
   dependencies:
     "@braintree/sanitize-url" "^3.0.0"
     "@webscopeio/react-textarea-autocomplete" "^4.0.0"
