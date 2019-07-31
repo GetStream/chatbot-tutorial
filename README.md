@@ -15,6 +15,16 @@ This chatbot tutorial teaches you how to build your own customer chat experience
 
 If you don't feel like doing the full tutorial you can get this repo up and running by following these instructions
 
+### Account setup
+
+Ensure you have an account for [Stream](https://getstream.io/chat/) and [LUIS](https://www.luis.ai/). 
+
+
+### Disable auth & permissions
+
+Disable auth and permission checks on your stream chat account.
+Head over the [dashboard](https://getstream.io/dashboard/) -> click your app -> click chat -> disable permissions & auth -> save
+
 ### Git clone
 
 ```
@@ -22,12 +32,14 @@ git clone git@github.com:GetStream/chatbot-tutorial.git
 cd chatbot-tutorial
 ```
 
+
+
 ### Support Chat React
 
 Create a file called **.env.development**, the full path is **chatbot-tutorial/chat-frontend/.env.development** with these settings
 
 ```
-REACT_APP_STREAM_API_KEY=mykey
+REACT_APP_STREAM_API_KEY=replacewithyourstreamapikey
 ```
 
 Next run these steps
@@ -42,7 +54,7 @@ yarn; yarn start
 Create a file called **.env.development**, the full path is **chatbot-tutorial/chat-agent-dashboard/.env.development** with these settings
 
 ```
-REACT_APP_STREAM_API_KEY=mykey
+REACT_APP_STREAM_API_KEY=replacewithyourstreamapikey
 ```
 
 Next run these steps
@@ -58,7 +70,7 @@ yarn; yarn start
 Create a file called **.env**, the full path is **chatbot-tutorial/serverless/.env** and setup the environment variables:
 
 ```
-STREAM_API_KEY=key
+STREAM_API_KEY=replacewithyourstreamapikey
 STREAM_API_SECRET=secret
 LUIS_APP_ID=appid
 LUIS_SUBSCRIPTION_KEY=subscriptionkey
