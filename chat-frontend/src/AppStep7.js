@@ -44,6 +44,60 @@ const Button = ({ open, onClick }) => (
 );
 
 /**
+ * A custom channel header element which shows who is currently online
+ */
+function MyChannelHeader() {
+  const channelContext = React.useContext(ChannelContext);
+  const channel = channelContext.channel;
+  const client = channelContext.client;
+  const [members, setMembers] = React.useState(channel.state.members);
+
+  React.useEffect(() => {
+    function handleUserPresenceChange(event) {
+      setMembers(channel.state.members);
+    }
+
+    client.on("user.presence.changed", handleUserPresenceChange);
+
+    return function cleanup() {
+      client.off("user.presence.changed", handleUserPresenceChange);
+    };
+  });
+
+  const onlineUsers = [];
+  if (members) {
+    for (let m of Object.values(members)) {
+      if (m.user.online) {
+        onlineUsers.push(m.user);
+      }
+    }
+  }
+
+  if (!onlineUsers.length) {
+    return (
+      <div className="str-chat__header-livestream">
+        Sorry, nobody is online at the moment. A support agent has been
+        notified.
+      </div>
+    );
+  }
+
+  return (
+    <div className="str-chat__header-livestream">
+      Currently online:
+      {onlineUsers.map((value, index) => {
+        return (
+          <div key={index}>
+            <Avatar image={value.image} name={value.name} />
+            {value.name}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/**
  * A little interface for the user to setup their name and email before
  * The chat starts.
  */
@@ -120,7 +174,6 @@ export function GuestUserInput({ setChannel, ...props }) {
   );
 }
 
-
 function App() {
   const [open, setOpen] = React.useState(true);
   const [channel, setChannel] = React.useState(null);
@@ -130,7 +183,22 @@ function App() {
   };
 
   function renderChat() {
-    return
+    return (
+      <Chat client={chatClient} theme={"commerce light"}>
+        <Channel channel={channel}>
+          <Window>
+            <MyChannelHeader />
+
+            <MessageList
+              TypingIndicator={TypingIndicator}
+              Message={MessageCommerce}
+            />
+
+            <MessageInput Input={MessageInputFlat} />
+          </Window>
+        </Channel>
+      </Chat>
+    );
   }
 
   let nodes = "";

@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 import {
   Chat,
   Channel,
@@ -9,7 +8,7 @@ import {
   MessageInputFlat,
   MessageCommerce,
   MessageInput,
-  withChannelContext,
+  ChannelContext,
   Avatar
 } from "stream-chat-react";
 import { StreamChat } from "stream-chat";
@@ -44,26 +43,19 @@ const Button = ({ open, onClick }) => (
   </div>
 );
 
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      open: true,
-      channel: null
-    };
-  }
+function App () {
+  const [open, setOpen] = React.useState(true);
+  const [channel, setChannel] = React.useState(null);
 
-  toggleDemo = () => {
-    this.setState({ open: !this.state.open });
+  const toggle = () => {
+    setOpen(!open);
   };
 
-  render() {
-    return (
-      <div className={`wrapper ${this.state.open ? "wrapper--open" : ""}`}>
-        <Button onClick={this.toggleDemo} open={this.state.open} />
-      </div>
-    );
-  }
+  return (
+    <div className={`wrapper ${open ? "wrapper--open" : ""}`}>
+      <Button onClick={toggle} open={open} />
+    </div>
+  );
 }
 
 export default App;

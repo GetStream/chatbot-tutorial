@@ -120,7 +120,6 @@ export function GuestUserInput({ setChannel, ...props }) {
   );
 }
 
-
 function App() {
   const [open, setOpen] = React.useState(true);
   const [channel, setChannel] = React.useState(null);
@@ -130,7 +129,21 @@ function App() {
   };
 
   function renderChat() {
-    return
+    return (
+      <Chat client={chatClient} theme={"commerce light"}>
+        <Channel channel={channel}>
+          <Window>
+
+            <MessageList
+              TypingIndicator={TypingIndicator}
+              Message={MessageCommerce}
+            />
+
+            <MessageInput Input={MessageInputFlat} />
+          </Window>
+        </Channel>
+      </Chat>
+    );
   }
 
   let nodes = "";
