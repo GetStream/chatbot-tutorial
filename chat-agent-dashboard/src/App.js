@@ -40,7 +40,10 @@ function App() {
   return (
     <div>
       <Chat client={chatClient} theme={"commerce light"}>
-        <ChannelList filters={filters} sort={sort} />
+        <ChannelList
+        filters={filters}
+        sort={sort}
+        />
         <Channel>
           <Window>
             <ChannelHeader />
