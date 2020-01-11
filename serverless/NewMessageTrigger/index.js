@@ -2,7 +2,6 @@ const axios = require("axios");
 const StreamChat = require("stream-chat").StreamChat;
 require("dotenv").config();
 
-
 /**
  * getStreamClient - returns the Stream Chat client
  *
@@ -26,12 +25,17 @@ async function analyseIntentWithLUIS(context, messageText) {
   const appID = process.env.LUIS_APP_ID;
   const key = process.env.LUIS_SUBSCRIPTION_KEY;
   const region = process.env.LUIS_REGION;
-  const url = `https://${region}.api.cognitive.microsoft.com/luis/v2.0/apps/${appID}?subscription-key=${key}&q=${messageText}`;
-  const response = await axios.get(url);
-  const data = response.data;
-  context.log("response", response);
 
-  return data.topScoringIntent;
+  const url = `https://${region}.api.cognitive.microsoft.com/luis/v2.0/apps/${appID}?subscription-key=${key}&q=${messageText}`;
+
+  try {
+    const response = await axios.get(url);
+    const data = response.data;
+    return data.topScoringIntent;
+  } catch (e) {
+    context.log(`Failed to analyse intent with luis, error ${e.response.data}`);
+    throw e;
+  }
 }
 
 /**
@@ -51,7 +55,10 @@ module.exports = async function(context, req) {
   }
   // important: validate that the request came from Stream
   const chatClient = getStreamClient();
-  const valid = chatClient.verifyWebhook(req.rawBody, req.headers['x-signature']);
+  const valid = chatClient.verifyWebhook(
+    req.rawBody,
+    req.headers["x-signature"]
+  );
   if (!valid) {
     context.res = {
       body: { error: "Invalid request, signature is invalid" }
@@ -69,6 +76,7 @@ module.exports = async function(context, req) {
     const channelID = cID.split(":")[1];
 
     // run intent analysis with LUIS
+    context.log("starting to analyse intent with LUIS");
     const topIntent = await analyseIntentWithLUIS(context, messageText);
     const intent = topIntent.intent;
     const score = topIntent.score;
@@ -78,7 +86,7 @@ module.exports = async function(context, req) {
 
     // if we understand this intend, send a reply
     const channel = chatClient.channel(channelType, channelID);
-    const botUser = {id: "mrbot",name: "MR Bot"};
+    const botUser = { id: "mrbot", name: "MR Bot" };
 
     if (intent === "Answer") {
       await channel.sendMessage({
