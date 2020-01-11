@@ -3,18 +3,15 @@ import {
   Chat,
   Channel,
   ChannelHeader,
-  Thread,
-  Window
-} from "stream-chat-react";
-import {
   MessageList,
   ChannelList,
   TypingIndicator,
   MessageInputFlat,
   MessageCommerce,
-  MessageInput
+  MessageInput,
+  Window
 } from "stream-chat-react";
-import { StreamChat, DevToken } from "stream-chat";
+import { StreamChat } from "stream-chat";
 
 import "stream-chat-react/dist/css/index.css";
 
