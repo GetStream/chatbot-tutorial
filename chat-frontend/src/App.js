@@ -48,21 +48,20 @@ const Button = ({ open, onClick }) => (
  * A custom channel header element which shows who is currently online
  */
 function MyChannelHeader() {
-  const [members, setMembers] = React.useState([]);
-
   const channelContext = React.useContext(ChannelContext);
   const channel = channelContext.channel;
+  const client = channelContext.client;
+  const [members, setMembers] = React.useState(channel.state.members);
 
   React.useEffect(() => {
-    function handleUserPresenceChange(status) {
-      console.log('updating members');
+    function handleUserPresenceChange(event) {
       setMembers(channel.state.members);
     }
 
-    channel.on("user.presence.changed", handleUserPresenceChange);
+    client.on("user.presence.changed", handleUserPresenceChange);
 
     return function cleanup() {
-      channel.off("user.presence.changed", handleUserPresenceChange);
+      client.off("user.presence.changed", handleUserPresenceChange);
     };
   });
 
@@ -120,7 +119,7 @@ export function GuestUserInput({ setChannel, ...props }) {
     const channel = chatClient.channel("commerce", userID, {
       members: [chatClient.user.id, assignedSupportAgent],
       assigned: assignedSupportAgent,
-      status: 'open'
+      status: "open"
     });
     channel.watch({ presence: true });
 
